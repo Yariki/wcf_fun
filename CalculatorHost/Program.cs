@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Text;
@@ -20,16 +22,27 @@ namespace CalculatorHost
         {
             var wsHttpBinding = new WSHttpBinding();
             wsHttpBinding.Security.Mode = SecurityMode.Message;
-            wsHttpBinding.Security.Message.ClientCredentialType = MessageCredentialType.Windows;
+            // windows auth
+            //wsHttpBinding.Security.Message.ClientCredentialType = MessageCredentialType.Windows;
+            // username
+            wsHttpBinding.Security.Message.ClientCredentialType = MessageCredentialType.UserName;
 
             var contract = typeof(ICalculator);
             var service = typeof(CalculatorService);
 
             var uri = new Uri("http://localhost:8036/SecSamples/");
             
+            
+            
             var serviceHost = new ServiceHost(service,uri);
             serviceHost.AddServiceEndpoint(contract, wsHttpBinding, "secureCalc");
-
+            serviceHost.Credentials.ServiceCertificate.SetCertificate(
+                StoreLocation.CurrentUser,
+                StoreName.My,
+                X509FindType.FindBySubjectName,
+                "CalculatorService"
+                );
+            
             var metadata = new ServiceMetadataBehavior();
             metadata.HttpGetEnabled = true;
             serviceHost.Description.Behaviors.Add(metadata);
