@@ -29,7 +29,7 @@ namespace CalculatorClient
             
             // certificate
             wsHttpBinding.Security.Message.ClientCredentialType = MessageCredentialType.Certificate;
-            var endPoint = new EndpointAddress(new Uri("http://localhost:8036/SecSamples/secureCalc"), EndpointIdentity.CreateDnsIdentity("CalculatorService"));
+            var endPoint = new EndpointAddress(new Uri("http://localhost:8036/SecSamples/secureCalc"), EndpointIdentity.CreateDnsIdentity("WCFServer"));
             
             var channel = new CalculatorChannel(wsHttpBinding,endPoint);
             // username    
@@ -38,12 +38,12 @@ namespace CalculatorClient
 
             
             channel.ClientCredentials.ClientCertificate.SetCertificate(
-                StoreLocation.CurrentUser,
+                StoreLocation.LocalMachine,
                 StoreName.My,
                 X509FindType.FindBySubjectName,
-                "WCFUser"
+                "WCFClient"
                 );
-            channel.ClientCredentials.ServiceCertificate.SetDefaultCertificate(StoreLocation.CurrentUser,StoreName.My,X509FindType.FindBySubjectName,"CalculatorService");
+            channel.ClientCredentials.ServiceCertificate.SetDefaultCertificate(StoreLocation.LocalMachine,StoreName.My,X509FindType.FindBySubjectName,"WCFServer");
             channel.ClientCredentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
             channel.ClientCredentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
             

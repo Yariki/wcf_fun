@@ -41,19 +41,19 @@ namespace CalculatorHost
             serviceHost.AddServiceEndpoint(contract, wsHttpBinding, "secureCalc");
             //username and certificate
             serviceHost.Credentials.ServiceCertificate.SetCertificate(
-                StoreLocation.CurrentUser,
+                StoreLocation.LocalMachine,
                 StoreName.My,
                 X509FindType.FindBySubjectName,
-                "CalculatorService"
+                "WCFServer"
                 );
             //certificate
             serviceHost.Credentials.ClientCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.ChainTrust;
             serviceHost.Credentials.ClientCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
             serviceHost.Credentials.ClientCertificate.SetCertificate(
-                StoreLocation.CurrentUser,
+                StoreLocation.LocalMachine,
                 StoreName.My,
                 X509FindType.FindBySubjectName,
-                "WCFUser");
+                "WCFClient");
                 
             var metadata = new ServiceMetadataBehavior();
             metadata.HttpGetEnabled = true;
