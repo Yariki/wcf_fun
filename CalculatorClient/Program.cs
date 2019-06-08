@@ -8,7 +8,6 @@ using System.ServiceModel.Security;
 using System.Text;
 using System.Threading.Tasks;
 using CalculatorClient.Channels;
-using System.ServiceModel.Security;
 
 namespace CalculatorClient
 {
@@ -22,20 +21,31 @@ namespace CalculatorClient
             //var endPoint = new EndpointAddress("http://localhost:8036/SecSamples/secureCalc");
             
             // username
-            wsHttpBinding.Security.Message.ClientCredentialType = MessageCredentialType.UserName;
-            var endPoint = new EndpointAddress(new Uri("http://localhost:8036/SecSamples/secureCalc"), EndpointIdentity.CreateDnsIdentity("CalculatorService"));
+//            wsHttpBinding.Security.Message.ClientCredentialType = MessageCredentialType.UserName;
+//            var endPoint = new EndpointAddress(new Uri("http://localhost:8036/SecSamples/secureCalc"), EndpointIdentity.CreateDnsIdentity("CalculatorService"));
             System.Net.ServicePointManager.ServerCertificateValidationCallback =
                 delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
                 { return true; };
             
-            
+            // certificate
+            wsHttpBinding.Security.Message.ClientCredentialType = MessageCredentialType.Certificate;
+            var endPoint = new EndpointAddress(new Uri("http://localhost:8036/SecSamples/secureCalc"), EndpointIdentity.CreateDnsIdentity("CalculatorService"));
             
             var channel = new CalculatorChannel(wsHttpBinding,endPoint);
+            // username    
+//            channel.ClientCredentials.UserName.UserName = GetUserName();
+//            channel.ClientCredentials.UserName.Password = GetPassword();
+
             
+            channel.ClientCredentials.ClientCertificate.SetCertificate(
+                StoreLocation.CurrentUser,
+                StoreName.My,
+                X509FindType.FindBySubjectName,
+                "WCFUser"
+                );
+            channel.ClientCredentials.ServiceCertificate.SetDefaultCertificate(StoreLocation.CurrentUser,StoreName.My,X509FindType.FindBySubjectName,"CalculatorService");
             channel.ClientCredentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
-            
-            channel.ClientCredentials.UserName.UserName = GetUserName();
-            channel.ClientCredentials.UserName.Password = GetPassword();
+            channel.ClientCredentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
             
             channel.Open();
 
